@@ -1,0 +1,9 @@
+name: "Generate Terraform jobs"
+description: "Dynamically generates jobs which run `terraform plan` or `terraform apply` in multiple directories in parallel."
+inputs:
+  changed_directories:
+    description: "Space-separated list of directories that have been changed in this pull request."
+    required: true
+runs:
+  using: "node16"
+  main: "index.js"
