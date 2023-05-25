@@ -30,6 +30,7 @@ const flattenEntries = (entries) => {
         rootModule.rootModuleGroups.forEach((rootModuleGroup) => {
             const newRootModule = {...rootModule, ...rootModuleGroup.spec, ...rootModule.spec ?? {}};
             newRootModule.environments = newRootModule.environments || {}
+            newRootModule.environments = {...rootModuleGroup.spec.environments, ...newRootModule.environments}
             for (const [environmentName, props] of Object.entries(newRootModule.environments)) {
                 const stack = {...newRootModule, ...props};
                 stack.environment = environmentName
