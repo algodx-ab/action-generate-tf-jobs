@@ -15,25 +15,36 @@ const parseCiFile = (ciFile) => {
 };
 
 const flattenEntries = (entries) => {
-    const newRootModules = [];
     const rootModuleGroups = entries.filter(entry => entry.kind === "RootModuleGroup");
     const rootModules = entries.filter(entry => entry.kind === "RootModule");
     rootModules.forEach((rootModule) => {
+        rootModule.rootModuleGroups = []
         rootModuleGroups.forEach((rootModuleGroup) => {
-            var newRootModule = rootModule;
             if (rootModule.dirName.startsWith(rootModuleGroup.dirName)) {
-                newRootModule = {...rootModuleGroup.spec, ...rootModule.spec ?? {}};
-                newRootModule.rootModuleGroupPath = rootModuleGroup.dirName;
-                newRootModule.rootModulePath = rootModule.dirName;
-                newRootModule.rootModuleName = path.basename(rootModule.dirName);
-                const defaultBackendPath = `envs/environment/${newRootModule.environment}/backend.conf`;
-                newRootModule.backendConfigPath = newRootModule.backendConfigPath || defaultBackendPath;
-                newRootModule.installAwsCli = newRootModule.installAwsCli || false;
+                rootModule.rootModuleGroups.push(rootModuleGroup)
             }
-            delete newRootModule.kind;
-            delete newRootModule.spec;
+        });
+    });
+    const newRootModules = [];
+    rootModules.forEach((rootModule) => {
+        rootModule.rootModuleGroups.forEach((rootModuleGroup) => {
+            const newRootModule = {...rootModule, ...rootModuleGroup.spec, ...rootModule.spec ?? {}};
+            newRootModule.rootModuleGroupPath = rootModuleGroup.dirName;
+            newRootModule.rootModulePath = newRootModule.dirName;
+            newRootModule.rootModuleName = path.basename(newRootModule.dirName);
+            const defaultBackendPath = `envs/environment/${newRootModule.environment}/backend.conf`;
+            newRootModule.backendConfigPath = newRootModule.backendConfigPath || defaultBackendPath;
+            newRootModule.installAwsCli = newRootModule.installAwsCli || false;
+            newRootModule.azureadClientId = newRootModule.azureadClientId || null;
+            newRootModule.azureadTenantId = newRootModule.azureadTenantId || null;
             newRootModules.push(newRootModule);
         });
+    });
+    newRootModules.forEach((rootModule) => {
+        delete rootModule.dirName;
+        delete rootModule.kind;
+        delete rootModule.spec;
+        delete rootModule.rootModuleGroups;
     });
     return newRootModules;
 };
