@@ -41,15 +41,16 @@ const flattenEntries = (entries) => {
 const filterRootModules = (rootModules) => {
     var changedDirectories = core.getInput("changed_directories");
     changedDirectories = changedDirectories.split(" ");
-    changedDirectories = changedDirectories.map(d => d + "/")
+    changedDirectories = changedDirectories.map(d => d + "/");
 
     // If certain directories are touched, run all jobs unconditionally
+    const skipFilteringDirectories = core.getInput("skip_filtering_directories").split(" ").filter((e) => e !== "");
     for (const directory of changedDirectories) {
-        if (directory.startsWith(".github/")) {
-            return rootModules;
-        }
-        if (directory.startsWith("modules/")) {
-            return rootModules;
+        for (var skipFilteringDirectory of skipFilteringDirectories) {
+            skipFilteringDirectory += skipFilteringDirectory.endsWith("/") ? "" : "/";
+            if (directory.startsWith(skipFilteringDirectory)) {
+                return rootModules;
+            }
         }
     };
 
