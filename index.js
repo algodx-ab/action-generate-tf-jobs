@@ -73,5 +73,5 @@ var rootModules = flattenEntries(ciFileEntries)
 
 rootModules = filterRootModules(rootModules);
 
-const includeStatement = { include: rootModules };
+const includeStatement = rootModules.length === 0 ? {} : { include: rootModules };
 core.setOutput("matrix", includeStatement);
