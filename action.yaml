@@ -1,6 +1,10 @@
 name: "Generate Terraform jobs"
 description: "Dynamically generates jobs which run `terraform plan` or `terraform apply` in multiple directories in parallel."
 inputs:
+  skip_filtering_directories:
+    description: "Space-separated list of directories. If a change is made to any of these directories, generate jobs for all root modules."
+    required: true
+    default: ""
   changed_directories:
     description: "Space-separated list of directories that have been changed in this pull request."
     required: true
