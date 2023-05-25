@@ -25,28 +25,34 @@ const flattenEntries = (entries) => {
             }
         });
     });
-    const newRootModules = [];
+    const stacks = [];
     rootModules.forEach((rootModule) => {
         rootModule.rootModuleGroups.forEach((rootModuleGroup) => {
             const newRootModule = {...rootModule, ...rootModuleGroup.spec, ...rootModule.spec ?? {}};
-            newRootModule.rootModuleGroupPath = rootModuleGroup.dirName;
-            newRootModule.rootModulePath = newRootModule.dirName;
-            newRootModule.rootModuleName = path.basename(newRootModule.dirName);
-            const defaultBackendPath = `envs/environment/${newRootModule.environment}/backend.conf`;
-            newRootModule.backendConfigPath = newRootModule.backendConfigPath || defaultBackendPath;
-            newRootModule.installAwsCli = newRootModule.installAwsCli || false;
-            newRootModule.azureadClientId = newRootModule.azureadClientId || null;
-            newRootModule.azureadTenantId = newRootModule.azureadTenantId || null;
-            newRootModules.push(newRootModule);
+            newRootModule.environments = newRootModule.environments || {}
+            for (const [environmentName, props] of Object.entries(newRootModule.environments)) {
+                const stack = {...newRootModule, ...props};
+                stack.environment = environmentName
+                stack.rootModuleGroupPath = rootModuleGroup.dirName;
+                stack.rootModulePath = stack.dirName;
+                stack.rootModuleName = path.basename(stack.dirName);
+                const defaultBackendPath = `envs/environment/${stack.environment}/backend.conf`;
+                stack.backendConfigPath = stack.backendConfigPath || defaultBackendPath;
+                stack.installAwsCli = stack.installAwsCli || false;
+                stack.azureadClientId = stack.azureadClientId || null;
+                stack.azureadTenantId = stack.azureadTenantId || null;
+                stacks.push(stack);
+            };
         });
     });
-    newRootModules.forEach((rootModule) => {
-        delete rootModule.dirName;
-        delete rootModule.kind;
-        delete rootModule.spec;
-        delete rootModule.rootModuleGroups;
+    stacks.forEach((stack) => {
+        delete stack.dirName;
+        delete stack.kind;
+        delete stack.spec;
+        delete stack.rootModuleGroups;
+        delete stack.environments;
     });
-    return newRootModules;
+    return stacks;
 };
 
 const filterRootModules = (rootModules) => {
