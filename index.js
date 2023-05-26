@@ -75,7 +75,13 @@ const filterRootModules = (rootModules) => {
     const filteredRootModules = [];
     rootModules.forEach((rootModule) => {
         for (const directory of changedDirectories) {
+            // If you edited anything below envs/customer/vpc/, run vpc/ jobs
             if (directory.startsWith(rootModule.rootModulePath)) {
+                filteredRootModules.push(rootModule);
+                return;
+            }
+            // If you edited envs/customer/manifest.yaml, run all jobs below envs/customer/
+            if (directory === rootModule.rootModuleGroupPath) {
                 filteredRootModules.push(rootModule);
                 return;
             }
